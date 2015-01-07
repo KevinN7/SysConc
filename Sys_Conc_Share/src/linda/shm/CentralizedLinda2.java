@@ -74,9 +74,9 @@ public class CentralizedLinda2 implements Linda {
 
 		Collection<Tuple> motifBloques = new LinkedList<Tuple>();
 		
-		for(Tuple motifBloque : this.listeAttente.keySet())
-			if(t.matches(motifBloque))
-				motifBloques.add(motifBloque);
+		for(Tuple motifsBloquesCompatibles : this.listeAttente.keySet())
+			if(t.matches(motifsBloquesCompatibles))
+				motifBloques.add(motifsBloquesCompatibles);
 		
 		boolean toujoursPresent = true;
 		ProcessusBloque processusBloqueCourant;
