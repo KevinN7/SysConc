@@ -21,15 +21,17 @@ import linda.Tuple;
 public class CentralizedLinda5 implements Linda {
 	
 	ConcurrentLinkedDeque<Tuple> tuples;
+	ConcurrentLinkedDeque<Tuple> tuplesBuffer;
 	ConcurrentHashMap<Tuple,ConcurrentLinkedQueue<ProcessusBloque>> listeAttente;
 	Lock lock;
-	GestionnaireEvent gestionnaireEvent;
+	GestionnaireEvent2 gestionnaireEvent;
 	
     public CentralizedLinda5() {
     	this.tuples = new ConcurrentLinkedDeque<Tuple>();
     	this.lock = new ReentrantLock(true);
     	this.listeAttente = new ConcurrentHashMap<Tuple, ConcurrentLinkedQueue<ProcessusBloque>>();
-    	this.gestionnaireEvent = new GestionnaireEvent();
+    	this.gestionnaireEvent = new GestionnaireEvent2();
+    	this.tuplesBuffer = new ConcurrentLinkedDeque<Tuple>();
     }
 
     //renvoi la reference du premier tuple qui matche t
@@ -49,18 +51,40 @@ public class CentralizedLinda5 implements Linda {
 		
     	return res;
     }
+    
+    private Tuple findBuffer(Tuple t) {
+    	Tuple res=null;
+    	boolean trouve = false;
+		java.util.Iterator<Tuple> i = this.tuplesBuffer.iterator();
+		
+		while(i.hasNext() && !trouve) {
+			res = i.next();
+			trouve = res.matches(t);
+		}
+		if(!trouve)
+			res=null;
+		
+    	return res;
+    }
+     
      
     
 	@Override
 	public void write(Tuple t) {
 		
-		//TRAITEMENT APPELS BLOQUE
+		//Prob:si un nouveau take ou tryTake ou TakeAll se ramene pendant un write, prends le tuple venant d'être ajouté
+		//		alors que ce tuple aurait du être consommé par le deblocage d'un Take ou d'un eventTake pour garder la coherence
+		//Soluce:ne pas ajouter direct le tuple à la base de donnée principale
 		
-		//Ajout du tuple BDD
-		this.tuples.addFirst(t);
 		
-		//Reveille des appels bloquants en attente (NON FIFO)
-
+		//EventRead
+		
+		Events2 events = this.gestionnaireEvent.getEvents(t);
+		for(Callback c:events.getRead())
+			c.call(t);
+		
+		//ReadBloques
+		
 		//Construction des motif bloqués compatible avec le tuple t
 		Collection<Tuple> motifBloques = new LinkedList<Tuple>();
 		
@@ -68,36 +92,47 @@ public class CentralizedLinda5 implements Linda {
 			if(t.matches(motifsBloquesCompatibles))
 				motifBloques.add(motifsBloquesCompatibles);
 		
-		
-		
+		Condition premierTakeBloque = null;
 		boolean toujoursPresent = true;
 		ProcessusBloque processusBloqueCourant;
 
 		Iterator<Tuple> i = motifBloques.iterator();
 		while(toujoursPresent && i.hasNext()) {
-			LinkedList<ProcessusBloque> ProcessAttente = this.listeAttente.get(i.next());
+			ConcurrentLinkedQueue<ProcessusBloque> ProcessAttente = this.listeAttente.get(i.next());
 			Iterator<ProcessusBloque> j = ProcessAttente.iterator();
 			while(toujoursPresent && j.hasNext()) {
 				processusBloqueCourant = j.next();
-				processusBloqueCourant.getCds().signal();
-				if(processusBloqueCourant.getMode().equals(eventMode.TAKE)) {
-					toujoursPresent = false;
+				if(processusBloqueCourant.getMode().equals(eventMode.READ)) {
+					processusBloqueCourant.getCds().signal();
+				} else {
+					//C'est un take que l'on reveillera apres
+					if(premierTakeBloque==null)
+						premierTakeBloque = processusBloqueCourant.getCds();
 				}
 			}
 		}
 		
+		//TakeBloque
 		
-		
-		//PRIORITE : 	APPEL BLOQUANT, EVENT READ, EVENT TAKE
-		//TRAITEMENT EVENT
-		
-		Events events = this.gestionnaireEvent.getEvents(t);
-		for(Callback c:events.getRead())
-			c.call(t);
-		
-		Callback cbTake = events.getTake(); 
-		if(cbTake != null)
-			cbTake.call(t);
+		//Reveille du premier take bloque si present
+		this.tuplesBuffer.add(t);
+		if(premierTakeBloque!=null) {
+			premierTakeBloque.signal();
+		} else {
+			//On peut executer un event Take
+			Callback cbTake = events.getTake(); 
+			if(cbTake != null) {
+				cbTake.call(t);
+			} else {
+				//Aucun Take n'a eté fait
+				
+				//CES DEUX INSTRUCTIONS DOIVENT PEUT ETRE MISE EN ATOMIQUE
+				//Ajout du tuple BDD
+				this.tuples.addFirst(t);
+				//Retrait du buffer
+				this.tuplesBuffer.remove(t);
+			}
+		}
 		
 	}
 
@@ -136,6 +171,7 @@ public class CentralizedLinda5 implements Linda {
 		while(res == null) {
 			blockRead(template);
 			res = this.find(template);
+			res = this.findBuffer(template);
 		}
 
 		return res.deepclone();
@@ -165,6 +201,7 @@ public class CentralizedLinda5 implements Linda {
 	    while(res == null) {
 	    	blockTake(template);
 			res = this.find(template);
+			res = this.findBuffer(template);
 			
 		    if(this.tuples.remove(res)) {
 		    	//L élement a bien était supprimé, on peut retourner res
@@ -173,7 +210,7 @@ public class CentralizedLinda5 implements Linda {
 		    	res = null;
 		    }    
 	    }
-	    
+
 		return res;
 	}
 

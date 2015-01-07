@@ -5,37 +5,40 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import linda.Callback;
 import linda.Tuple;
 
 public class GestionnaireEvent2 {
 
-	private ConcurrentHashMap<Tuple, Events> events;
+	private Lock lock;
+	private ConcurrentHashMap<Tuple, Events2> events;
 
 	public GestionnaireEvent2() {
-		this.events = new ConcurrentHashMap<Tuple, Events>();
+		this.events = new ConcurrentHashMap<Tuple, Events2>();
+		this.lock = new ReentrantLock();
 	}
 
 	public void addRead(Tuple t, Callback call) {
-		Events event = this.events.get(t);
-		if (event == null) {
-			event = new Events();
-			event.addRead(call);
-			this.events.put(t, event);
-		} else {
-			event.addRead(call);
+
+		Events2 e = new Events2();
+		e.addRead(call);
+		Events2 h = this.events.putIfAbsent(t, e);
+		if(h==null) {
+			//La clé vient d'être ajouté
+		}else{
+			//La clé existait dejà
+			h.addRead(call);
 		}
 		
-		
-		this.events.replace(key, value)
-
 	}
 
 	public void setTake(Tuple t, Callback call) {
-		Events event = this.events.get(t);
+		Events2 event = this.events.get(t);
 		if (event == null) {
-			event = new Events();
+			event = new Events2();
 			event.setTake(call);
 			this.events.put(t, event);
 		} else {
@@ -44,51 +47,40 @@ public class GestionnaireEvent2 {
 	}
 
 	
-	public Events getEvents(Tuple t) {
+	public Events2 getEvents(Tuple t) {
 		
-		Events res = new Events();
-		Events temp;
+		Events2 res = new Events2();
+		Events2 temp;
+		Callback cb;
+		boolean takeTrouve = false;
+		this.lock.lock();
 		
 		for(Tuple key : this.events.keySet()) {
 			if(t.matches(key)) {
-				temp = this.events.get(key);
-				for(Callback cb : temp.getRead())
-					res.addRead(cb);
+				temp = this.events.remove(key);
+				for(Callback c : temp.getRead())
+					res.addRead(c);
 				
-				if(temp.getTake() != null)
-					res.setTake(temp.getTake());
+				cb = temp.getTake();
+				if(cb!=null) {
+					if(!takeTrouve) {
+						//On retire l abonnement take
+						res.setTake(cb);
+					} else {
+						//On le remet dans l'ens
+						setTake(key,cb);
+					}
+				} else {
+					//Il n'y avait pas de Take associé
+				}
+					
 			}
 		}
+		
+		this.lock.unlock();
 		
 		return res;
 	}
-	
-	/*
-	public Events getEvents(Tuple t) {
-		//Events events = this.events.get(t);
-		
-		Events res = new Events();
-		Events temp;
-		
-		for(Tuple key : this.events.keySet()) {
-			if(t.matches(key)) {
-				temp = this.events.get(key);
-				for(Callback cb : temp.getRead())
-					res.addRead(cb);
-				
-				if(temp.getTake() != null)
-					res.setTake(temp.getTake());
-			}
-		}
-		
-		return res;
-		
-		//if(events == null)
-		//	events = new Events();
-		//return events;
-		//Au cas ou aucun events
-		//return new Events();
-	}*/
 
 }
 

@@ -22,7 +22,7 @@ public class TestTryRead {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.linda = new linda.shm.CentralizedLinda2();
+		this.linda = new linda.shm.CentralizedLinda5();
 		
 		this.template1 = new Tuple(Integer.class,String.class,"Basil le serpent");
 		this.template2 = new Tuple(Integer.class,String.class);
