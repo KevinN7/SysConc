@@ -25,7 +25,7 @@ public class LindaServer extends UnicastRemoteObject implements LindaS {
 	CentralizedLinda linda;
 	Registry registry;
 
-	protected LindaServer(String uri, int port) throws RemoteException {
+	public LindaServer(String uri, int port) throws RemoteException {
 		registry = LocateRegistry.createRegistry(port);
 		linda = new CentralizedLinda();
 		try {
