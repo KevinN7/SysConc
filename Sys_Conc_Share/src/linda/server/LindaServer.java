@@ -10,10 +10,12 @@ import java.util.Collection;
 
 import linda.Callback;
 import linda.Linda;
+import linda.Linda.eventMode;
+import linda.Linda.eventTiming;
 import linda.Tuple;
 import linda.shm.CentralizedLinda;
 
-public class LindaServer extends UnicastRemoteObject implements Linda {
+public class LindaServer extends UnicastRemoteObject implements LindaS {
 
 	/**
 	 * 
@@ -71,8 +73,8 @@ public class LindaServer extends UnicastRemoteObject implements Linda {
 
 	@Override
 	public void eventRegister(eventMode mode, eventTiming timing,
-			Tuple template, Callback callback) {
-		linda.eventRegister(mode,timing,template,callback);
+			Tuple template, CbDist callback) {
+		linda.eventRegister(mode,timing,template,new CallbackServ(callback));
 	}
 
 	@Override
