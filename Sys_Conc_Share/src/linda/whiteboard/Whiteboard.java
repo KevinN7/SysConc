@@ -7,6 +7,9 @@
 package linda.whiteboard;
 
 import java.awt.*;
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 
 /**
  ** This class implements a 'shared' whiteboard to be used with Linda.
@@ -19,7 +22,7 @@ public class Whiteboard extends Panel {
     protected static final int HEIGHT = 350;
     public Frame appFrame;
         
-    public Whiteboard(String serverURI) {
+    public Whiteboard(String serverURI) throws MalformedURLException, RemoteException, NotBoundException {
         appFrame = new Frame("Whiteboard");
         appFrame.add("Center", this);
         appFrame.setSize(WIDTH,HEIGHT);   
@@ -36,8 +39,11 @@ public class Whiteboard extends Panel {
      ** Run the whiteboard as an application.
      **
      ** @param args - command line arguments
+     * @throws NotBoundException 
+     * @throws RemoteException 
+     * @throws MalformedURLException 
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws MalformedURLException, RemoteException, NotBoundException {
     	if (args.length != 1) {
     		System.err.println("Whiteboard serverURI.");
     		return;
