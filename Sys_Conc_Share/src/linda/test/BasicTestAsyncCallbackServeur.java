@@ -1,6 +1,8 @@
 package linda.test;
 
+import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -25,7 +27,7 @@ public class BasicTestAsyncCallbackServeur {
         }
     }
 	
-    public static void main(String[] a) throws RemoteException {
+    public static void main(String[] a) throws RemoteException, MalformedURLException, NotBoundException {
     LindaServer lindaserv = new LindaServer("localhost:8080/linda", 8080);
     Linda linda = new linda.server.LindaClient("//localhost:4000/MonServeur");
 
