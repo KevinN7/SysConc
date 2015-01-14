@@ -53,7 +53,7 @@ public class LindaServer extends UnicastRemoteObject implements LindaS {
 
 	@Override
 	public Tuple tryTake(Tuple template) {
-		return tryTake(template);
+		return linda.tryTake(template);
 	}
 
 	@Override
