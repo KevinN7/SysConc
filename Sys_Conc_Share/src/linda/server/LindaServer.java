@@ -1,15 +1,15 @@
 package linda.server;
 
 import java.net.MalformedURLException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Collection;
 
-import linda.Callback;
-import linda.Linda;
 import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
 import linda.Tuple;
@@ -24,16 +24,23 @@ public class LindaServer extends UnicastRemoteObject implements LindaS {
 	
 	CentralizedLinda linda;
 	Registry registry;
+	String uri;
 
-	public LindaServer(String uri, int port) throws RemoteException {
-		registry = LocateRegistry.createRegistry(port);
+	public LindaServer(String nuri, int port) throws RemoteException {
 		linda = new CentralizedLinda();
+		uri = nuri;
 		try {
-			Naming.rebind(uri, this);
-		} catch (MalformedURLException e) {
+			Naming.bind(uri, this);
+		} catch (MalformedURLException | AlreadyBoundException e) {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void finalise(){
+		try {
+			Naming.unbind(uri);
+		} catch (Exception e) {		}
 	}
 
 	@Override

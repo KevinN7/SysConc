@@ -8,9 +8,7 @@ import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
 import linda.Tuple;
 
-public interface LindaS extends Remote {
-	
-	public void finalise();
+public interface Linda4S extends Remote {
 
 	/** Adds a tuple t to the tuplespace. */
     public void write(Tuple t);
@@ -62,5 +60,6 @@ public interface LindaS extends Remote {
 
     /** To debug, prints any information it wants (e.g. the tuples in tuplespace or the registered callbacks), prefixed by <code>prefix</code. */
     public void debug(String prefix);
-	
+    
+    public void newServer(String uri);
 }
