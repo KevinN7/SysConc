@@ -15,48 +15,77 @@ import linda.Tuple;
  * */
 public class LindaClient implements Linda {
 	
-	LindaServer serv;
+	LindaS serv;
 	
     /** Initializes the Linda implementation.
      *  @param serverURI the URI of the server, e.g. "//localhost:4000/LindaServer".
      */
     public LindaClient(String serverURI) throws MalformedURLException, RemoteException, NotBoundException {
-        serv = (LindaServer)Naming.lookup(serverURI );
+        serv = (LindaS)Naming.lookup(serverURI );
     }
 
 	@Override
 	public void write(Tuple t) {
-		serv.write(t);		
+		try {
+			serv.write(t);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 
 	@Override
 	public Tuple take(Tuple template) {
-		return serv.take(template);
+		try {
+			return serv.take(template);
+		} catch (RemoteException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Tuple read(Tuple template) {
-		return serv.read(template);
+		try {
+			return serv.read(template);
+		} catch (RemoteException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Tuple tryTake(Tuple template) {
-		return serv.tryTake(template);
+		try {
+			return serv.tryTake(template);
+		} catch (RemoteException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Tuple tryRead(Tuple template) {
-		return serv.tryRead(template);
+		try {
+			return serv.tryRead(template);
+		} catch (RemoteException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Collection<Tuple> takeAll(Tuple template) {
-		return serv.takeAll(template);
+		try {
+			return serv.takeAll(template);
+		} catch (RemoteException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Collection<Tuple> readAll(Tuple template) {
-		return serv.readAll(template);
+		try {
+			return serv.readAll(template);
+		} catch (RemoteException e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -72,7 +101,12 @@ public class LindaClient implements Linda {
 
 	@Override
 	public void debug(String prefix) {
-		serv.debug(prefix);		
+		try {
+			serv.debug(prefix);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
     
     // TO BE COMPLETED
