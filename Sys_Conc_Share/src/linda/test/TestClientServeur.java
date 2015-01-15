@@ -41,11 +41,12 @@ public class TestClientServeur {
 		}*/
 		//this.lien = "//localhost/basil";
 		this.lien = "//localhost:"+ port +"/basil";
-		this.lien+=num;
+		String lien2 = "//localhost:"+ port +"/basil";
+		//this.lien+=num;
 		num++;
 		//this.lien = "//"+InetAddress.getLocalHost()+":"+port+"/basil";
 		this.serveur = new LindaServer(lien,port);
-		this.client = new LindaClient(lien);
+		this.client = new LindaClient(lien2);
 
 		this.template1 = new Tuple(Integer.class,String.class,"Basil le serpent");
 		this.template2 = new Tuple(Integer.class,String.class);

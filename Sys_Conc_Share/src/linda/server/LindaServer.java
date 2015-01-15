@@ -31,18 +31,17 @@ public class LindaServer extends UnicastRemoteObject implements LindaS {
 		linda = new CentralizedLinda();
 		uri = nuri;
 		try {
-			Naming.bind(uri, this);
-		} catch (MalformedURLException | AlreadyBoundException e) {
+			Naming.rebind(uri, this);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 	}
 	
-	public void finalise(){
+/*	public void finalize(){
 		try {
-			Naming.unbind(uri);
 		} catch (Exception e) {		}
-	}
+	}*/
 
 	@Override
 	public void write(Tuple t) {

@@ -11,7 +11,7 @@ import linda.Tuple;
 
 public interface LindaS extends Remote {
 	
-	public void finalise();
+	//public void finalize();
 
 	/** Adds a tuple t to the tuplespace. */
     public void write(Tuple t) throws RemoteException;
