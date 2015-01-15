@@ -34,7 +34,7 @@ public class TestClientServeur {
 
 	@Before
 	public void setUp() throws Exception {
-		this.port=4039;
+		this.port=4500;
 		/*if(rmi) {
 			LocateRegistry.createRegistry(port);
 			rmi = false;
@@ -55,7 +55,7 @@ public class TestClientServeur {
 		this.start = System.nanoTime();
 	}
 
-	@Test
+	/*@Test
 	public void init(){
 		try {
 			LocateRegistry.createRegistry(port);
@@ -63,7 +63,7 @@ public class TestClientServeur {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	}*/
 	@Test
 	public void test1() {
 		this.res = this.client.tryTake(template1);
