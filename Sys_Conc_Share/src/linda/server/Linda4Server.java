@@ -104,8 +104,45 @@ public class Linda4Server extends UnicastRemoteObject implements Linda4S {
 
 	@Override
 	public Tuple read(Tuple template) {
+		Tuple res;
+		Linda4Server servCourant;
 		
-		return linda.read(template);
+		res = this.linda.tryRead(template);
+		if(res == null) {
+			//On regarde chez les autres
+			Iterator<Linda4Server> i = this.servs.iterator();
+			while(i.hasNext() && res == null) {
+				servCourant = i.next();
+				res = ((Linda4Server) i).tryReadServer(template);
+			}
+			
+			//A t-on un candidat?
+			if(res == null) {
+				//Pas de candidat
+				
+				//On enregistre des eventRegister chez tout le monde
+				DemandeTransmission cbd = new DemandeTransmission(this);
+				CbDist cbdv;
+				try {
+					cbdv = new CbDist(cbd);
+					for(Linda4Server s:this.servs) {
+						s.eventRegister(eventMode.TAKE, eventTiming.FUTURE, template, cbdv);
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+				
+
+				
+				
+				//On s'endort et on sera reveillé par un wite d'un callback
+				this.linda.read(template);
+			} else {
+				//On atrouvé un candidat
+				return res;
+			}
+		}
+		return res;
 	}
 
 	@Override
