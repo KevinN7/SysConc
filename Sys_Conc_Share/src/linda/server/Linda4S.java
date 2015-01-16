@@ -62,4 +62,8 @@ public interface Linda4S extends Remote {
     public void debug(String prefix);
     
     public void newServer(String uri);
+    
+    public Tuple tryTakeServer(Tuple template);
+
+    public Tuple tryReadServer(Tuple template);
 }

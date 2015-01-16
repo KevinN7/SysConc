@@ -8,6 +8,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
@@ -58,25 +59,79 @@ public class Linda4Server extends UnicastRemoteObject implements Linda4S {
 	public void write(Tuple t) {
 		linda.write(t);
 	}
-
-	@Override
+	
 	public Tuple take(Tuple template) {
-		return linda.take(template);
+		Tuple res;
+		Linda4Server servCourant;
+		
+		res = this.linda.tryTake(template);
+		if(res == null) {
+			//On regarde chez les autres
+			Iterator<Linda4Server> i = this.servs.iterator();
+			while(i.hasNext() && res == null) {
+				servCourant = i.next();
+				res = ((Linda4Server) i).tryTakeServer(template);
+			}
+			
+			//A t-on un candidat?
+			if(res == null) {
+				//Pas de candidat
+				
+				//On enregistre des eventRegister chez tout le monde
+				DemandeTransmission cbd = new DemandeTransmission(this);
+				for(Linda4Server s:this.servs) {
+					s.eventRegister(eventMode.TAKE, eventTiming.FUTURE, template, cbd);
+				}
+				
+				
+				//On s'endort et on sera reveillé par un wite d'un callback
+				this.linda.take(template);
+			} else {
+				//On atrouvé un candidat
+				return res;
+			}
+		}
+		return res;
 	}
 
 	@Override
 	public Tuple read(Tuple template) {
+		
 		return linda.read(template);
 	}
 
 	@Override
 	public Tuple tryTake(Tuple template) {
-		return tryTake(template);
+		Tuple res;
+		Linda4Server servCourant;
+		
+		res = this.linda.tryTake(template);
+		if(res == null) {
+			//On regarde chez les autres
+			Iterator<Linda4Server> i = this.servs.iterator();
+			while(i.hasNext() && res == null) {
+				servCourant = i.next();
+				res = ((Linda4Server) i).tryTakeServer(template);
+			}
+		}
+		return res;
 	}
 
 	@Override
 	public Tuple tryRead(Tuple template) {
-		return linda.tryRead(template);
+		Tuple res;
+		Linda4Server servCourant;
+		
+		res = this.linda.tryRead(template);
+		if(res == null) {
+			//On regarde chez les autres
+			Iterator<Linda4Server> i = this.servs.iterator();
+			while(i.hasNext() && res == null) {
+				servCourant = i.next();
+				res = ((Linda4Server) i).tryReadServer(template);
+			}
+		}
+		return res;
 	}
 
 	@Override
@@ -134,5 +189,20 @@ public class Linda4Server extends UnicastRemoteObject implements Linda4S {
 			}
 		}
 	}
+	
+	//Regarde uniquement en local
+    public Tuple tryTakeServer(Tuple template) {
+    	Tuple res = null;
+    	
+    	res = this.linda.tryTake(template);
+    	
+    	return res;
+    }
+
+    public Tuple tryReadServer(Tuple template){
+    	Tuple res = null;
+    	res= this.linda.tryRead(template);
+    	return res;
+    }
 
 }
