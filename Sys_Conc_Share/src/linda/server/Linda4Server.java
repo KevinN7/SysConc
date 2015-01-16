@@ -79,9 +79,17 @@ public class Linda4Server extends UnicastRemoteObject implements Linda4S {
 				
 				//On enregistre des eventRegister chez tout le monde
 				DemandeTransmission cbd = new DemandeTransmission(this);
-				for(Linda4Server s:this.servs) {
-					s.eventRegister(eventMode.TAKE, eventTiming.FUTURE, template, cbd);
+				CbDist cbdv;
+				try {
+					cbdv = new CbDist(cbd);
+					for(Linda4Server s:this.servs) {
+						s.eventRegister(eventMode.TAKE, eventTiming.FUTURE, template, cbdv);
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
 				}
+				
+
 				
 				
 				//On s'endort et on sera reveillé par un wite d'un callback
