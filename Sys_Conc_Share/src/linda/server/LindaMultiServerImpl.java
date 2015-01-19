@@ -15,23 +15,22 @@ import linda.Linda.eventTiming;
 import linda.shm.CentralizedLinda;
 import linda.Tuple;
 
-public class Linda4Server extends UnicastRemoteObject implements Linda4S {
+public class LindaMultiServerImpl extends UnicastRemoteObject implements LindaMultiServer {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	HashSet<Linda4Server> servs;
+	HashSet<LindaMultiServerImpl> servs;
 	HashSet<String> uris;
-	Linda4Server master;
+	LindaMultiServerImpl master;
 	boolean ismaster;
 	
 	CentralizedLinda linda;
 	Registry registry;
 
-	public Linda4Server(String uri, int port, boolean nismaster, String masterUri) throws RemoteException {
-		//registry = LocateRegistry.createRegistry(port);
+	public LindaMultiServerImpl(String uri, int port, boolean nismaster, String masterUri) throws RemoteException {
 		linda = new CentralizedLinda();
 		ismaster = nismaster;
 		try {
@@ -42,13 +41,12 @@ public class Linda4Server extends UnicastRemoteObject implements Linda4S {
 		
 		if(!ismaster) {
 			try {
-				master = (Linda4Server)Naming.lookup(masterUri);
-				master.newServer(uri);
+				master = (LindaMultiServerImpl)Naming.lookup(masterUri);
+				//master.newServer(uri);
+				servs = master.newServer(uri);
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (NotBoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -56,64 +54,60 @@ public class Linda4Server extends UnicastRemoteObject implements Linda4S {
 	}
 
 	@Override
-	public void write(Tuple t) {
+	public void write(Tuple t)  throws RemoteException{
 		linda.write(t);
 	}
 	
-	public Tuple take(Tuple template) {
+	public Tuple take(Tuple template)  throws RemoteException{
 		Tuple res;
-		Linda4Server servCourant;
+		LindaMultiServerImpl servCourant;
 		
+		//On regarde en local
 		res = this.linda.tryTake(template);
 		if(res == null) {
-			//On regarde chez les autres
-			Iterator<Linda4Server> i = this.servs.iterator();
+			//On regarde chez les autres serveurs
+			Iterator<LindaMultiServerImpl> i = this.servs.iterator();
 			while(i.hasNext() && res == null) {
 				servCourant = i.next();
-				res = ((Linda4Server) i).tryTakeServer(template);
+				res = ((LindaMultiServerImpl) i).tryTakeLocal(template);
 			}
 			
 			//A t-on un candidat?
 			if(res == null) {
-				//Pas de candidat
+				//Pas de candidat actuellement sur tous les serveurs
 				
 				//On enregistre des eventRegister chez tout le monde
 				DemandeTransmission cbd = new DemandeTransmission(this);
-				CbDist cbdv;
+				CbDist demandeDistante;
 				try {
-					cbdv = new CbDist(cbd);
-					for(Linda4Server s:this.servs) {
-						s.eventRegister(eventMode.TAKE, eventTiming.FUTURE, template, cbdv);
+					demandeDistante = new CbDist(cbd);
+					for(LindaMultiServerImpl s:this.servs) {
+						s.eventRegister(eventMode.TAKE, eventTiming.FUTURE, template, demandeDistante);
 					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
-				
-
 				
 				
 				//On s'endort et on sera reveillé par un wite d'un callback
 				this.linda.take(template);
-			} else {
-				//On atrouvé un candidat
-				return res;
 			}
 		}
 		return res;
 	}
 
 	@Override
-	public Tuple read(Tuple template) {
+	public Tuple read(Tuple template)  throws RemoteException{
 		Tuple res;
-		Linda4Server servCourant;
+		LindaMultiServerImpl servCourant;
 		
 		res = this.linda.tryRead(template);
 		if(res == null) {
 			//On regarde chez les autres
-			Iterator<Linda4Server> i = this.servs.iterator();
+			Iterator<LindaMultiServerImpl> i = this.servs.iterator();
 			while(i.hasNext() && res == null) {
 				servCourant = i.next();
-				res = ((Linda4Server) i).tryReadServer(template);
+				res = ((LindaMultiServerImpl) i).tryReadLocal(template);
 			}
 			
 			//A t-on un candidat?
@@ -125,129 +119,147 @@ public class Linda4Server extends UnicastRemoteObject implements Linda4S {
 				CbDist cbdv;
 				try {
 					cbdv = new CbDist(cbd);
-					for(Linda4Server s:this.servs) {
+					for(LindaMultiServerImpl s:this.servs) {
 						s.eventRegister(eventMode.TAKE, eventTiming.FUTURE, template, cbdv);
 					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
 				
-
-				
 				
 				//On s'endort et on sera reveillé par un wite d'un callback
 				this.linda.read(template);
-			} else {
-				//On atrouvé un candidat
-				return res;
 			}
 		}
 		return res;
 	}
 
 	@Override
-	public Tuple tryTake(Tuple template) {
+	public Tuple tryTake(Tuple template)  throws RemoteException{
 		Tuple res;
-		Linda4Server servCourant;
+		LindaMultiServerImpl servCourant;
 		
+		//On regarde en local
 		res = this.linda.tryTake(template);
 		if(res == null) {
-			//On regarde chez les autres
-			Iterator<Linda4Server> i = this.servs.iterator();
+			//On regarde chez les autres serveurs
+			Iterator<LindaMultiServerImpl> i = this.servs.iterator();
 			while(i.hasNext() && res == null) {
 				servCourant = i.next();
-				res = ((Linda4Server) i).tryTakeServer(template);
+				res = ((LindaMultiServerImpl) i).tryTakeLocal(template);
 			}
 		}
 		return res;
 	}
 
 	@Override
-	public Tuple tryRead(Tuple template) {
+	public Tuple tryRead(Tuple template)  throws RemoteException{
 		Tuple res;
-		Linda4Server servCourant;
+		LindaMultiServerImpl servCourant;
 		
 		res = this.linda.tryRead(template);
 		if(res == null) {
 			//On regarde chez les autres
-			Iterator<Linda4Server> i = this.servs.iterator();
+			Iterator<LindaMultiServerImpl> i = this.servs.iterator();
 			while(i.hasNext() && res == null) {
 				servCourant = i.next();
-				res = ((Linda4Server) i).tryReadServer(template);
+				res = ((LindaMultiServerImpl) i).tryReadLocal(template);
 			}
 		}
 		return res;
 	}
 
 	@Override
-	public Collection<Tuple> takeAll(Tuple template) {
-		return linda.takeAll(template);
+	public Collection<Tuple> takeAll(Tuple template)  throws RemoteException{
+		HashSet<Tuple> res = new HashSet<Tuple>();
+		res.addAll(linda.takeAll(template));
+		
+		for(LindaMultiServerImpl serv:this.servs) {
+			res.addAll(serv.takeAll(template));
+		}
+		
+		return res;
 	}
 
 	@Override
-	public Collection<Tuple> readAll(Tuple template) {
+	public Collection<Tuple> readAll(Tuple template)  throws RemoteException{
 		return linda.readAll(template);
 	}
 
 	@Override
 	public void eventRegister(eventMode mode, eventTiming timing,
-			Tuple template, CbDist callback) {
+			Tuple template, CbDist callback)  throws RemoteException{
 		linda.eventRegister(mode,timing,template,new CallbackServ(callback));
 	}
 
 	@Override
-	public void debug(String prefix) {
+	public void debug(String prefix)  throws RemoteException{
 		linda.debug(prefix);
 	}
 
+	//Si instance maitre alors MAJ liste serveurs et demande esclave MAJ
+	//Si instance esclave alors ajoute l'URI 
 	@Override
-	public void newServer(String uri) {
+	public HashSet<LindaMultiServerImpl> newServer(String uri)  throws RemoteException{
+		HashSet<LindaMultiServerImpl> res = new HashSet<LindaMultiServerImpl>();
+		
 		if(ismaster){
-			for(Linda4Server actuel : servs){
+			//Demande d'ajout pour chaque serveur esclave
+			for(LindaMultiServerImpl actuel : servs){
 				actuel.newServer(uri);
 			}
+			
+			//Construction de la liste des serveurs actuels(priv� du nouveau serveur)
+			res.addAll(servs);
+			
+			//Ajout du nouveau server
 			try {
-				this.servs.add((Linda4Server)Naming.lookup(uri));
+				this.servs.add((LindaMultiServerImpl)Naming.lookup(uri));
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (NotBoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		else{
 			try {
-				this.servs.add((Linda4Server)Naming.lookup(uri));
+				this.servs.add((LindaMultiServerImpl)Naming.lookup(uri));
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (NotBoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		return res;
 	}
 	
 	//Regarde uniquement en local
-    public Tuple tryTakeServer(Tuple template) {
-    	Tuple res = null;
-    	
-    	res = this.linda.tryTake(template);
-    	
-    	return res;
+	@Override
+    public Tuple tryTakeLocal(Tuple template)  throws RemoteException{
+    	return this.linda.tryTake(template);
     }
 
-    public Tuple tryReadServer(Tuple template){
-    	Tuple res = null;
-    	res= this.linda.tryRead(template);
-    	return res;
+    @Override
+    public Tuple tryReadLocal(Tuple template) throws RemoteException{
+    	return this.linda.tryRead(template);
     }
+
+	@Override
+	public Collection<Tuple> takeAllLocal(Tuple template)
+			throws RemoteException {
+		
+		return this.linda.takeAll(template);
+	}
+
+	@Override
+	public Collection<Tuple> readAllLocal(Tuple template)
+			throws RemoteException {
+		
+		return this.linda.readAll(template);
+	}
 
 }
