@@ -60,12 +60,6 @@ public class TestMultiServer {
 		new Thread() {
 			public void run() {
 
-				/*final class Callback1 implements Callback {
-					public void call(Tuple t) {
-						System.out.println("Thread0");
-						test[0] = true;
-					};
-				}*/
 				System.out.println("Client1");
 				Tuple h = client1.read(template1);
 				System.out.println("c1 recu"+h);
@@ -87,7 +81,15 @@ public class TestMultiServer {
 			}
 		}.start();
 		
-		
+    	//ATTENTE BIEN LONGUE COMME IL FAUT
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
+        //Faire les verifs ici
+
 	}
 
 }
