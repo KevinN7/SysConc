@@ -63,7 +63,9 @@ public interface LindaMultiServer extends Remote {
     /** To debug, prints any information it wants (e.g. the tuples in tuplespace or the registered callbacks), prefixed by <code>prefix</code. */
     public void debug(String prefix) throws RemoteException;
     
-    public HashSet<LindaMultiServerImpl> newServer(String uri) throws RemoteException;
+    
+    //public HashSet<LindaMultiServerImpl> newServer(String uri) throws RemoteException;
+    public HashSet<LindaMultiServerImpl> newServer(LindaMultiServerImpl serv) throws RemoteException;
     
     public Tuple tryTakeLocal(Tuple template) throws RemoteException;
 

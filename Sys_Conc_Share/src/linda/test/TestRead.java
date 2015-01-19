@@ -21,7 +21,7 @@ public class TestRead {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.linda = new linda.shm.CentralizedLinda5();
+		this.linda = new linda.shm.CentralizedLindaMultiThread();
 		
 		this.template1 = new Tuple(Integer.class,String.class,"Basil le serpent");
 		this.template2 = new Tuple(Integer.class,String.class);

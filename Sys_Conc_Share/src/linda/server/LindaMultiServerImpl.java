@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import linda.AsynchronousCallback;
 import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
 import linda.shm.CentralizedLinda;
@@ -43,7 +44,8 @@ public class LindaMultiServerImpl extends UnicastRemoteObject implements LindaMu
 			try {
 				master = (LindaMultiServerImpl)Naming.lookup(masterUri);
 				//master.newServer(uri);
-				servs = master.newServer(uri);
+				//servs = master.newServer(uri);
+				servs = master.newServer(this);
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			} catch (NotBoundException e) {
@@ -197,9 +199,26 @@ public class LindaMultiServerImpl extends UnicastRemoteObject implements LindaMu
 		linda.debug(prefix);
 	}
 
+	@Override
+	public HashSet<LindaMultiServerImpl> newServer(LindaMultiServerImpl serv) throws RemoteException {
+		HashSet<LindaMultiServerImpl> res = new HashSet<LindaMultiServerImpl>();
+		
+		if(ismaster){
+			//Demande d'ajout pour chaque serveur esclave
+			for(LindaMultiServerImpl actuel : servs){
+				actuel.newServer(serv);
+			}
+			//Construction de la liste des serveurs actuels(privé du nouveau serveur)
+			res.addAll(servs);
+		}
+		//Ajout du nouveau serveur
+		this.servs.add(serv);
+		return res;
+	}
+	
 	//Si instance maitre alors MAJ liste serveurs et demande esclave MAJ
 	//Si instance esclave alors ajoute l'URI 
-	@Override
+	/*@Override
 	public HashSet<LindaMultiServerImpl> newServer(String uri)  throws RemoteException{
 		HashSet<LindaMultiServerImpl> res = new HashSet<LindaMultiServerImpl>();
 		
@@ -235,7 +254,7 @@ public class LindaMultiServerImpl extends UnicastRemoteObject implements LindaMu
 			}
 		}
 		return res;
-	}
+	}*/
 	
 	//Regarde uniquement en local
 	@Override

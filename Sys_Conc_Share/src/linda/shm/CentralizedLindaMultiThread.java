@@ -18,7 +18,7 @@ import linda.Linda;
 import linda.Tuple;
 
 /** Shared memory implementation of Linda. */
-public class CentralizedLinda5 implements Linda {
+public class CentralizedLindaMultiThread implements Linda {
 	
 	ConcurrentLinkedDeque<Tuple> tuples;
 	ConcurrentLinkedDeque<Tuple> tuplesBuffer;
@@ -26,7 +26,7 @@ public class CentralizedLinda5 implements Linda {
 	Lock lock;
 	GestionnaireEvent2 gestionnaireEvent;
 	
-    public CentralizedLinda5() {
+    public CentralizedLindaMultiThread() {
     	this.tuples = new ConcurrentLinkedDeque<Tuple>();
     	this.lock = new ReentrantLock(true);
     	this.listeAttente = new ConcurrentHashMap<Tuple, ConcurrentLinkedQueue<ProcessusBloque>>();
