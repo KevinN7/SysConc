@@ -10,7 +10,7 @@ import linda.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestTake {
+public class TestEvent {
 
 	Linda linda;
 	Tuple template1;

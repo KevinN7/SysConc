@@ -38,7 +38,7 @@ public class TestTryTake {
 	}
 
 	/**
-	 * Test method for {@link linda.shm.CentralizedLinda#tryTake(linda.Tuple)}.
+	 * Test method for {@link linda.shm.CentralizedLindaTemp1#tryTake(linda.Tuple)}.
 	 */
 	@Test
 	public void test1() {

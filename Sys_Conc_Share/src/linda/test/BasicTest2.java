@@ -5,7 +5,7 @@ import linda.*;
 public class BasicTest2 {
 
     public static void main(String[] a) {
-        final Linda linda = new linda.shm.CentralizedLinda();
+        final Linda linda = new linda.shm.CentralizedLindaTemp1();
         //              final Linda linda = new linda.server.LindaClient("//localhost:4000/MonServeur");
         
         //Lancement de 3 Thread lisant un motif Integer String

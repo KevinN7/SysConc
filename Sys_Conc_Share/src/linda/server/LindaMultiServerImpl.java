@@ -13,7 +13,7 @@ import java.util.Iterator;
 import linda.AsynchronousCallback;
 import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
-import linda.shm.CentralizedLinda;
+import linda.shm.CentralizedLindaTemp1;
 import linda.Tuple;
 
 public class LindaMultiServerImpl extends UnicastRemoteObject implements LindaMultiServer {
@@ -28,23 +28,22 @@ public class LindaMultiServerImpl extends UnicastRemoteObject implements LindaMu
 	LindaMultiServerImpl master;
 	boolean ismaster;
 	
-	CentralizedLinda linda;
+	CentralizedLindaTemp1 linda;
 	Registry registry;
 
+	//peut etre virer le port inutile?
 	public LindaMultiServerImpl(String uri, int port, boolean nismaster, String masterUri) throws RemoteException {
-		linda = new CentralizedLinda();
-		ismaster = nismaster;
+		this.linda = new CentralizedLindaTemp1();
+		this.ismaster = nismaster;
 		try {
 			Naming.rebind(uri, this);
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 		if(!ismaster) {
 			try {
 				master = (LindaMultiServerImpl)Naming.lookup(masterUri);
-				//master.newServer(uri);
-				//servs = master.newServer(uri);
 				servs = master.newServer(this);
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
@@ -216,45 +215,6 @@ public class LindaMultiServerImpl extends UnicastRemoteObject implements LindaMu
 		return res;
 	}
 	
-	//Si instance maitre alors MAJ liste serveurs et demande esclave MAJ
-	//Si instance esclave alors ajoute l'URI 
-	/*@Override
-	public HashSet<LindaMultiServerImpl> newServer(String uri)  throws RemoteException{
-		HashSet<LindaMultiServerImpl> res = new HashSet<LindaMultiServerImpl>();
-		
-		if(ismaster){
-			//Demande d'ajout pour chaque serveur esclave
-			for(LindaMultiServerImpl actuel : servs){
-				actuel.newServer(uri);
-			}
-			
-			//Construction de la liste des serveurs actuels(privé du nouveau serveur)
-			res.addAll(servs);
-			
-			//Ajout du nouveau server
-			try {
-				this.servs.add((LindaMultiServerImpl)Naming.lookup(uri));
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			} catch (NotBoundException e) {
-				e.printStackTrace();
-			}
-		}
-		else{
-			try {
-				this.servs.add((LindaMultiServerImpl)Naming.lookup(uri));
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			} catch (NotBoundException e) {
-				e.printStackTrace();
-			}
-		}
-		return res;
-	}*/
 	
 	//Regarde uniquement en local
 	@Override

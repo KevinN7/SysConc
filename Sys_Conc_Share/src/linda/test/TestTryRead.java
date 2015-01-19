@@ -69,7 +69,7 @@ public class TestTryRead {
 	}
 	
 	@Test
-	public void test4(){
+	public void testPerformmance(){
 		remplissage(10000);
 		this.linda.write(new Tuple(42,"Mickey"));
 		Tuple res = this.linda.take(new Tuple(42,"Mickey"));

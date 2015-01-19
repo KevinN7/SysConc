@@ -16,13 +16,13 @@ import linda.Linda.eventTiming;
 
 
 //Evite la famine
-public class CentralizedLinda3 implements Linda{
+public class CentralizedLindaTemp2 implements Linda{
 
 	GestionnaireTuple tuples;
 	Lock lock;
 	Map<Tuple, Condition> cds;
 
-	public CentralizedLinda3() {
+	public CentralizedLindaTemp2() {
 		this.tuples = new GestionnaireTuple();
 		this.lock = new ReentrantLock(true);
 		this.cds = new HashMap<Tuple, Condition>();
