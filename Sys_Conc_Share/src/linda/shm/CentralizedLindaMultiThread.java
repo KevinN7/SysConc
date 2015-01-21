@@ -103,7 +103,9 @@ public class CentralizedLindaMultiThread implements Linda {
 			while(toujoursPresent && j.hasNext()) {
 				processusBloqueCourant = j.next();
 				if(processusBloqueCourant.getMode().equals(eventMode.READ)) {
+					lock.lock();
 					processusBloqueCourant.getCds().signal();
+					lock.unlock();
 				} else {
 					//C'est un take que l'on reveillera apres
 					if(premierTakeBloque==null)
@@ -117,7 +119,9 @@ public class CentralizedLindaMultiThread implements Linda {
 		//Reveille du premier take bloque si present
 		this.tuplesBuffer.add(t);
 		if(premierTakeBloque!=null) {
+			lock.lock();
 			premierTakeBloque.signal();
+			lock.unlock();
 		} else {
 			//On peut executer un event Take
 			Callback cbTake = events.getTake(); 
@@ -158,7 +162,9 @@ public class CentralizedLindaMultiThread implements Linda {
 		}
 		
 		try {
+			lock.lock();
 			pb.getCds().await();
+			lock.unlock();
 		} catch (InterruptedException e) {e.printStackTrace();}
 
 	}
@@ -190,7 +196,9 @@ public class CentralizedLindaMultiThread implements Linda {
 		}
 		
 		try {
+			lock.lock();
 			pb.getCds().await();
+			lock.unlock();
 		} catch (InterruptedException e) {e.printStackTrace();}
 
 	}

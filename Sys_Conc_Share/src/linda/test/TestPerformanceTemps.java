@@ -3,65 +3,80 @@ package linda.test;
 import linda.*;
 
 public class TestPerformanceTemps {
+	
+	static public class Salope extends Thread{
+		private Linda linda;
+		public Salope(Linda lin) {
+			this.linda=lin;
+		}
+		public void run(){
+            Tuple t1 = new Tuple(4, 5);
+            linda.write(t1);
+
+            Tuple t11 = new Tuple(4, 5);
+            linda.write(t11);
+
+            Tuple t2 = new Tuple("hello", 15);
+            linda.write(t2);
+
+            Tuple t3 = new Tuple(4, "foo");
+            linda.write(t3);
+            
+            Tuple motif = new Tuple(Integer.class, Integer.class);
+            linda.take(motif);
+            
+            motif = new Tuple(Integer.class, String.class);
+            linda.take(motif);             
+		}
+	}
 
     public static void main(String[] a) {
                 
-        final Linda linda = new linda.shm.CentralizedLindaTemp1();
-        // final Linda linda = new linda.server.LindaClient("//localhost:4000/aaa");
+        final Linda lindam = new linda.shm.CentralizedLindaMultiThread();
+        final Linda linda = new linda.shm.CentralizedLinda();
         
-        long start = System.currentTimeMillis();
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+        long start = System.nanoTime();
+                
+        Thread[] t = new Thread[1000];
+        for(int i=0;i<1000;i++) {
+        	t[i] = new Salope(linda);
+        }
+        
+        for(int i=0;i<1000;i++) {
+        	t[i].start();
+        }
+        
+        for(int i=0;i<1000;i++) {
+        	try {
+				t[i].join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+        }
+                
+        System.out.println("Run time final:             " + (System.nanoTime() - start));
         
         
+        //////////////////////////////////////////////////////////////////////////////////////////
+        start = System.nanoTime();
         
-        System.out.println("Run time : " + (System.currentTimeMillis() - start));
+        for(int i=0;i<1000;i++) {
+        	t[i] = new Salope(lindam);
+        }
+        
+        for(int i=0;i<1000;i++) {
+        	t[i].start();
+        }
+        
+        for(int i=0;i<1000;i++) {
+        	try {
+				t[i].join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+        }
                 
-        //Pprend le tuple (Integer,String)
-        new Thread() {
-            public void run() {
-            	//ATTENTE BIEN LONGUE COMME IL FAUT
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                
-                Tuple motif = new Tuple(Integer.class, String.class);
-                Tuple res = linda.take(motif);
-                System.out.println("(1) Resultat:" + res);
-                linda.debug("(1)");
-            }
-        }.start();
-                
-        //Ajout de 4 Tuple à la database toute les combinaisons de Integer et String
-        new Thread() {
-            public void run() {
-            	//ATTENTE COURTE
-                try {
-                    Thread.sleep(2);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                Tuple t1 = new Tuple(4, 5);
-                System.out.println("(2) write: " + t1);
-                linda.write(t1);
-
-                Tuple t11 = new Tuple(4, 5);
-                System.out.println("(2) write: " + t11);
-                linda.write(t11);
-
-                Tuple t2 = new Tuple("hello", 15);
-                System.out.println("(2) write: " + t2);
-                linda.write(t2);
-
-                Tuple t3 = new Tuple(4, "foo");
-                System.out.println("(2) write: " + t3);
-                linda.write(t3);
-                                
-                linda.debug("(2)");
-
-            }
-        }.start();
-                
+        System.out.println("Run time final multithread: " + (System.nanoTime() - start));
     }
 }
