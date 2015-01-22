@@ -25,7 +25,6 @@ public class GestionnaireEvent {
 		} else {
 			event.addRead(call);
 		}
-
 	}
 
 	public void setTake(Tuple t, Callback call) {
@@ -40,7 +39,6 @@ public class GestionnaireEvent {
 	}
 
 	public Events getEvents(Tuple t) {
-		//Events events = this.events.get(t);
 		
 		Events res = new Events();
 		Events temp;
@@ -57,12 +55,6 @@ public class GestionnaireEvent {
 		}
 		
 		return res;
-		
-		//if(events == null)
-		//	events = new Events();
-		//return events;
-		//Au cas ou aucun events
-		//return new Events();
 	}
 
 }

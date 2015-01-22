@@ -15,14 +15,14 @@ import linda.Tuple;
  * */
 public class LindaClient implements Linda {
 	
-	LindaS serv;
+	LindaServer serv;
 	
     /** Initializes the Linda implementation.
      *  @param serverURI the URI of the server, e.g. "//localhost:4000/LindaServer".
      */
     public LindaClient(String serverURI) {
         try {
-        	serv = (LindaS)Naming.lookup(serverURI );
+        	serv = (LindaServer)Naming.lookup(serverURI );
         } catch(Exception e) {
         	e.printStackTrace();
         }
