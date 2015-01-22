@@ -67,23 +67,25 @@ public class CentralizedLinda implements Linda {
 	public void write(Tuple t) {
 		this.lock.lock();
 		
-		//TRAITEMENT APPELS BLOQUE
-		
 		this.tuples.add(t);
+		
 		//Reveille des appels bloquants en attente (NON FIFO)
 
+		//On contruit les motifs susceptible d'etre debloque
 		Collection<Tuple> motifBloques = new LinkedList<Tuple>();
-		
 		for(Tuple motifsBloquesCompatibles : this.listeAttente.keySet())
 			if(t.matches(motifsBloquesCompatibles))
 				motifBloques.add(motifsBloquesCompatibles);
 		
+		
+		//TRAITEMENT DES APPELS BLOQUES/////////////////////
+		//On reveille chaque appel susceptible d'etre debloque tant que le tuple est present
 		boolean toujoursPresent = true;
 		ProcessusBloque processusBloqueCourant;
-
 		Iterator<Tuple> i = motifBloques.iterator();
 		while(toujoursPresent && i.hasNext()) {
 			LinkedList<ProcessusBloque> ProcessAttente = this.listeAttente.get(i.next());
+			//On reveille les appels bloques sur ce motif
 			Iterator<ProcessusBloque> j = ProcessAttente.iterator();
 			while(toujoursPresent && j.hasNext()) {
 				processusBloqueCourant = j.next();
@@ -94,14 +96,13 @@ public class CentralizedLinda implements Linda {
 			}
 		}
 		
-		
-		//PRIORITE : 	APPEL BLOQUANT, EVENT READ, EVENT TAKE
-		//TRAITEMENT EVENT
-		
+		//TRAITEMENT DES EVENTS///////////////////////////
 		Events events = this.gestionnaireEvent.getEvents(t);
+		////REVEIL DES READS
 		for(Callback c:events.getRead())
 			c.call(t);
 		
+		////REVEIL DES TAKES
 		Callback cbTake = events.getTake(); 
 		if(cbTake != null)
 			cbTake.call(t);
@@ -133,19 +134,15 @@ public class CentralizedLinda implements Linda {
 					list = new LinkedList<ProcessusBloque>();
 					this.listeAttente.put(template, list);
 				}
-				
 				ProcessusBloque pb = new ProcessusBloque(this.lock, eventMode.READ);
 				list.add(pb);
 				pb.getCds().await();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			} catch (InterruptedException e) {e.printStackTrace();}
 			res = this.find(template);
 		}
 		this.lock.unlock();
 
 		Tuple result = res.deepclone();
-		//return res.deepclone();
 		return result;
 	}
 
@@ -162,20 +159,16 @@ public class CentralizedLinda implements Linda {
 					list = new LinkedList<ProcessusBloque>();
 					this.listeAttente.put(template, list);
 				}
-				
 				ProcessusBloque pb = new ProcessusBloque(this.lock, eventMode.TAKE);
 				list.add(pb);
 				pb.getCds().await();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			} catch (InterruptedException e) {e.printStackTrace();}
 
 			res = this.find(template);
 	    	
 	    }
 	    
 	    this.tuples.remove(res);
-	    
 	    this.lock.unlock();
 	    
 		return res;

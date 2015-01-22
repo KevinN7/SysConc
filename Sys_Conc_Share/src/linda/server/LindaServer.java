@@ -13,6 +13,7 @@ import java.util.Collection;
 import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
 import linda.Tuple;
+import linda.shm.CentralizedLinda;
 import linda.shm.CentralizedLindaTemp1;
 
 public class LindaServer extends UnicastRemoteObject implements LindaS {
@@ -22,19 +23,21 @@ public class LindaServer extends UnicastRemoteObject implements LindaS {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	CentralizedLindaTemp1 linda;
+	CentralizedLinda linda;
 	Registry registry;
 	String uri;
 
 
 	public LindaServer(String nuri, int port) throws RemoteException {
-		linda = new CentralizedLindaTemp1();
+		linda = new CentralizedLinda();
 		uri = nuri;
-		/*try {
+		try {
 			Naming.rebind(uri, this);
+			System.out.println("Serveur: Serveur OK et inscrit dans RMI");
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
+			System.out.println("Serveur: Erreur inscription dans RMI");
+		}
 		
 	}
 	

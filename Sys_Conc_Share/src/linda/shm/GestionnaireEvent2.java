@@ -27,9 +27,9 @@ public class GestionnaireEvent2 {
 		e.addRead(call);
 		Events2 h = this.events.putIfAbsent(t, e);
 		if(h==null) {
-			//La clé vient d'être ajouté
+			//La clï¿½ vient d'ï¿½tre ajoutï¿½
 		}else{
-			//La clé existait dejà
+			//La clï¿½ existait dejï¿½
 			h.addRead(call);
 		}
 		
@@ -71,16 +71,12 @@ public class GestionnaireEvent2 {
 						setTake(key,cb);
 					}
 				} else {
-					//Il n'y avait pas de Take associé
+					//Il n'y avait pas de Take associï¿½
 				}
-					
 			}
 		}
-		
-		this.lock.unlock();
-		
+		this.lock.unlock();	
 		return res;
 	}
-
 }
 
