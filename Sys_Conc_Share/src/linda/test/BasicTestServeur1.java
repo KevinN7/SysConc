@@ -1,8 +1,11 @@
 package linda.test;
 
+import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 import linda.Linda;
 import linda.Tuple;
@@ -13,9 +16,15 @@ public class BasicTestServeur1 {
 
 	public static void main(String[] a) throws RemoteException {
 		
-
-		final LindaServer linda = new LindaServer("//localhost:8080/linda", 8080);
-		// final Linda linda = new linda.server.LindaClient("//localhost:4000/aaa");
+		//Registry reg = LocateRegistry.createRegistry(4001);
+		final LindaServer lindas = new LindaServer("//localhost:4001/linda", 4001);
+		try {
+			Naming.rebind("//localhost:4001/linda", lindas);
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		final Linda linda = new linda.server.LindaClient("//localhost:4001/linda");
 
 		//Prend le tuple (Integer,String)
 		new Thread() {
@@ -64,6 +73,14 @@ public class BasicTestServeur1 {
 
 			}
 		}.start();
+		
+    	//ATTENTE COURTE
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
 
 	}
 }

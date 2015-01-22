@@ -1,13 +1,22 @@
 package linda.test;
 
+import java.rmi.RemoteException;
+
 import linda.*;
+import linda.server.LindaServer;
 
 public class BasicTest1 {
 
     public static void main(String[] a) {
                 
-        final Linda linda = new linda.shm.CentralizedLindaTemp1();
-        // final Linda linda = new linda.server.LindaClient("//localhost:4000/aaa");
+        //final Linda linda = new linda.shm.CentralizedLindaTemp1();
+    	try {
+			final LindaServer lindas = new LindaServer("//localhost:4000/aaa", 4000);
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        final Linda linda = new linda.server.LindaClient("//localhost:4000/aaa");
                 
         //Pprend le tuple (Integer,String)
         new Thread() {
@@ -56,6 +65,13 @@ public class BasicTest1 {
 
             }
         }.start();
+        
+    	//ATTENTE COURTE
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
                 
     }
 }

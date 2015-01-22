@@ -34,11 +34,11 @@ public class TestClientServeur {
 
 	@Before
 	public void setUp() throws Exception {
-		this.port=4500;
+		this.port=4000;
 		this.lien = "//localhost:"+ port +"/basil";
 		String lien2 = "//localhost:"+ port +"/basil";
-		num++;
 		this.serveur = new LindaServer(lien,port);
+		Naming.rebind(lien2, this.serveur);
 		this.client = new LindaClient(lien2);
 
 		this.template1 = new Tuple(Integer.class,String.class,"Basil le serpent");

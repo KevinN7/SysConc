@@ -30,62 +30,58 @@ public class LindaServer extends UnicastRemoteObject implements LindaS {
 	public LindaServer(String nuri, int port) throws RemoteException {
 		linda = new CentralizedLindaTemp1();
 		uri = nuri;
-		try {
+		/*try {
 			Naming.rebind(uri, this);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 	}
 	
-/*	public void finalize(){
-		try {
-		} catch (Exception e) {		}
-	}*/
 
 	@Override
-	public void write(Tuple t) {
+	public void write(Tuple t) throws RemoteException {
 		linda.write(t);
 	}
 
 	@Override
-	public Tuple take(Tuple template) {
+	public Tuple take(Tuple template) throws RemoteException {
 		return linda.take(template);
 	}
 
 	@Override
-	public Tuple read(Tuple template) {
+	public Tuple read(Tuple template) throws RemoteException {
 		return linda.read(template);
 	}
 
 	@Override
-	public Tuple tryTake(Tuple template) {
+	public Tuple tryTake(Tuple template) throws RemoteException {
 		return linda.tryTake(template);
 	}
 
 	@Override
-	public Tuple tryRead(Tuple template) {
+	public Tuple tryRead(Tuple template) throws RemoteException {
 		return linda.tryRead(template);
 	}
 
 	@Override
-	public Collection<Tuple> takeAll(Tuple template) {
+	public Collection<Tuple> takeAll(Tuple template) throws RemoteException {
 		return linda.takeAll(template);
 	}
 
 	@Override
-	public Collection<Tuple> readAll(Tuple template) {
+	public Collection<Tuple> readAll(Tuple template) throws RemoteException {
 		return linda.readAll(template);
 	}
 
 	@Override
 	public void eventRegister(eventMode mode, eventTiming timing,
-			Tuple template, CbDist callback) {
+			Tuple template, CbDist callback) throws RemoteException {
 		linda.eventRegister(mode,timing,template,new CallbackServ(callback));
 	}
 
 	@Override
-	public void debug(String prefix) {
+	public void debug(String prefix) throws RemoteException {
 		linda.debug(prefix);
 	}
 
