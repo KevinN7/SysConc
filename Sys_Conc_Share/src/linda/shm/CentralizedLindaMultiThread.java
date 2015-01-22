@@ -34,8 +34,8 @@ public class CentralizedLindaMultiThread implements Linda {
     	this.tuplesBuffer = new ConcurrentLinkedDeque<Tuple>();
     }
 
-    //renvoi la reference du premier tuple qui matche t
-    //N'assure pas qu'à la fin le tuple soit toujours present dans la bdd et n'est pas déjà etait supprimé
+    //Renvoi la reference du premier tuple qui matche t
+    //N'assure pas qu'a la fin le tuple soit toujours present dans la bdd et n'est pas deja etait supprimï¿½
     //Renvoit null si aucun ne matche
     private Tuple find(Tuple t) {
     	Tuple res=null;
@@ -52,6 +52,7 @@ public class CentralizedLindaMultiThread implements Linda {
     	return res;
     }
     
+    //Cherche un tuple dans le buffer
     private Tuple findBuffer(Tuple t) {
     	Tuple res=null;
     	boolean trouve = false;
@@ -72,20 +73,20 @@ public class CentralizedLindaMultiThread implements Linda {
 	@Override
 	public void write(Tuple t) {
 		
-		//Prob:si un nouveau take ou tryTake ou TakeAll se ramene pendant un write, prends le tuple venant d'être ajouté
-		//		alors que ce tuple aurait du être consommé par le deblocage d'un Take ou d'un eventTake pour garder la coherence
-		//Soluce:ne pas ajouter direct le tuple à la base de donnée principale
+		//Prob:si un nouveau take ou tryTake ou TakeAll se ramene pendant un write, prends le tuple venant d'ï¿½tre ajoutï¿½
+		//		alors que ce tuple aurait du ï¿½tre consommï¿½ par le deblocage d'un Take ou d'un eventTake pour garder la coherence
+		//Soluce:ne pas ajouter direct le tuple ï¿½ la base de donnï¿½e principale
 		
 		
-		//EventRead
+		//TRAITEMENT EVENT READ/////////////////////////////////////////////////////
 		
 		Events2 events = this.gestionnaireEvent.getEvents(t);
 		for(Callback c:events.getRead())
 			c.call(t);
 		
-		//ReadBloques
+		//TRAITEMENT READ BLOQUE/////////////////////////////////////////////////////
 		
-		//Construction des motif bloqués compatible avec le tuple t
+		//Construction des motif bloquï¿½s compatible avec le tuple t
 		Collection<Tuple> motifBloques = new LinkedList<Tuple>();
 		
 		for(Tuple motifsBloquesCompatibles : this.listeAttente.keySet())
@@ -114,7 +115,7 @@ public class CentralizedLindaMultiThread implements Linda {
 			}
 		}
 		
-		//TakeBloque
+		//TRAITEMENT TAKE BLOQUE/////////////////////////////////////////////////////////////
 		
 		//Reveille du premier take bloque si present
 		this.tuplesBuffer.add(t);
@@ -128,7 +129,7 @@ public class CentralizedLindaMultiThread implements Linda {
 			if(cbTake != null) {
 				cbTake.call(t);
 			} else {
-				//Aucun Take n'a eté fait
+				//Aucun Take n'a etï¿½ fait
 				
 				//CES DEUX INSTRUCTIONS DOIVENT PEUT ETRE MISE EN ATOMIQUE
 				//Ajout du tuple BDD
@@ -157,7 +158,7 @@ public class CentralizedLindaMultiThread implements Linda {
 		
 		queue.add(pb);
 		if(this.listeAttente.putIfAbsent(motif,new ConcurrentLinkedQueue<ProcessusBloque>()) != null) {
-			//La clé était déjà présente
+			//La clï¿½ ï¿½tait dï¿½jï¿½ prï¿½sente
 			this.listeAttente.get(motif).add(pb);
 		}
 		
@@ -191,7 +192,7 @@ public class CentralizedLindaMultiThread implements Linda {
 		
 		queue.add(pb);
 		if(this.listeAttente.putIfAbsent(motif,new ConcurrentLinkedQueue<ProcessusBloque>()) != null) {
-			//La clé était déjà présente
+			//La clï¿½ ï¿½tait dï¿½jï¿½ prï¿½sente
 			this.listeAttente.get(motif).add(pb);
 		}
 		
@@ -212,13 +213,12 @@ public class CentralizedLindaMultiThread implements Linda {
 			res = this.findBuffer(template);
 			
 		    if(this.tuples.remove(res)) {
-		    	//L élement a bien était supprimé, on peut retourner res
+		    	//L element a bien etait supprime, on peut retourner res
 		    }else{
-		    	//L élément a été pris entre temps par un autre thread, on reboucle
+		    	//L element a ete pris entre temps par un autre thread, on reboucle
 		    	res = null;
 		    }    
 	    }
-
 		return res;
 	}
 
@@ -233,11 +233,11 @@ public class CentralizedLindaMultiThread implements Linda {
 			//Un tuple matche le template
 			//Tentative de prise
 		    if(this.tuples.remove(recherche)) {
-		    	//L élement a bien était supprimé
+		    	//L ï¿½lement a bien ï¿½tait supprimï¿½
 		    	res = recherche;
 		    	recherche = null;
 		    }else{
-		    	//L élément a été pris entre temps par un autre thread, on cherche si il y en a un autre
+		    	//L ï¿½lï¿½ment a ï¿½tï¿½ pris entre temps par un autre thread, on cherche si il y en a un autre
 			    recherche = this.find(template);
 		    }
 		}
