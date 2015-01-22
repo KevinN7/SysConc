@@ -20,8 +20,12 @@ public class LindaClient implements Linda {
     /** Initializes the Linda implementation.
      *  @param serverURI the URI of the server, e.g. "//localhost:4000/LindaServer".
      */
-    public LindaClient(String serverURI) throws MalformedURLException, RemoteException, NotBoundException {
-        serv = (LindaS)Naming.lookup(serverURI );
+    public LindaClient(String serverURI) {
+        try {
+        	serv = (LindaS)Naming.lookup(serverURI );
+        } catch(Exception e) {
+        	e.printStackTrace();
+        }
     }
 
 	@Override
