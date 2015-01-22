@@ -33,8 +33,10 @@ public class LindaServer extends UnicastRemoteObject implements LindaS {
 		uri = nuri;
 		try {
 			Naming.rebind(uri, this);
+			System.out.println("Serveur: Serveur OK et inscrit dans RMI");
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.out.println("Serveur: Erreur inscription dans RMI");
 		}
 		
 	}
