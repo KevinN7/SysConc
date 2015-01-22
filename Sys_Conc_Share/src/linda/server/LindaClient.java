@@ -22,10 +22,13 @@ public class LindaClient implements Linda {
      */
     public LindaClient(String serverURI) {
         try {
-        	serv = (LindaS)Naming.lookup(serverURI );
+        	serv = (LindaS)Naming.lookup(serverURI);
         } catch(Exception e) {
         	e.printStackTrace();
+        	System.out.println("Serveur non trouvé");
         }
+        if(serv!=null)
+        	System.out.println("Client:Serveur trouvé");
     }
 
 	@Override
@@ -33,7 +36,6 @@ public class LindaClient implements Linda {
 		try {
 			serv.write(t);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 	}
@@ -98,7 +100,6 @@ public class LindaClient implements Linda {
 		try {
 			serv.eventRegister(mode,timing,template,new CbDist(callback));
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -108,11 +109,8 @@ public class LindaClient implements Linda {
 		try {
 			serv.debug(prefix);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 	}
-    
-    // TO BE COMPLETED
 
 }
