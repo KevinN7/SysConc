@@ -19,7 +19,7 @@ public class BasicTestCallback {
 
     public static void main(String[] a) {
 
-        Linda linda = new linda.shm.CentralizedLinda();
+        Linda linda = new linda.shm.CentralizedLindaTemp1();
         //Linda linda = new linda.server.LindaClient("//localhost:4000/MonServeur");
 
         Tuple motif = new Tuple(Integer.class, String.class);

@@ -19,7 +19,7 @@ public class LindaShmTest {
 
 	@Before
 	public void setUp() throws Exception {
-		this.linda = new linda.shm.CentralizedLinda2();
+		this.linda = new linda.shm.CentralizedLindaMultiThread();
 		
 		this.template1 = new Tuple(Integer.class,String.class,"Basil le serpent");
 		this.template2 = new Tuple(Integer.class,String.class);
@@ -31,7 +31,6 @@ public class LindaShmTest {
 
 	@Test
 	public void test() {
-		fail("Not yet implemented"); // TODO
 	}
 
 }

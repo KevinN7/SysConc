@@ -6,7 +6,7 @@ public class BasicTest1 {
 
     public static void main(String[] a) {
                 
-        final Linda linda = new linda.shm.CentralizedLinda();
+        final Linda linda = new linda.shm.CentralizedLindaTemp1();
         // final Linda linda = new linda.server.LindaClient("//localhost:4000/aaa");
                 
         //Pprend le tuple (Integer,String)

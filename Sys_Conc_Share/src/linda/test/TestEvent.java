@@ -10,7 +10,7 @@ import linda.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestTake {
+public class TestEvent {
 
 	Linda linda;
 	Tuple template1;
@@ -24,7 +24,7 @@ public class TestTake {
 
 	@Before
 	public void setUp() throws Exception {
-		this.linda = new linda.shm.CentralizedLinda5();
+		this.linda = new linda.shm.CentralizedLindaMultiThread();
 
 		this.template1 = new Tuple(Integer.class, String.class,
 				"Basil le serpent");

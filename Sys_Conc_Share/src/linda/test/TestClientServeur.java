@@ -35,16 +35,9 @@ public class TestClientServeur {
 	@Before
 	public void setUp() throws Exception {
 		this.port=4500;
-		/*if(rmi) {
-			LocateRegistry.createRegistry(port);
-			rmi = false;
-		}*/
-		//this.lien = "//localhost/basil";
 		this.lien = "//localhost:"+ port +"/basil";
 		String lien2 = "//localhost:"+ port +"/basil";
-		//this.lien+=num;
 		num++;
-		//this.lien = "//"+InetAddress.getLocalHost()+":"+port+"/basil";
 		this.serveur = new LindaServer(lien,port);
 		this.client = new LindaClient(lien2);
 
@@ -56,15 +49,6 @@ public class TestClientServeur {
 		this.start = System.nanoTime();
 	}
 
-	/*@Test
-	public void init(){
-		try {
-			LocateRegistry.createRegistry(port);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}*/
 	@Test
 	public void test1() {
 		this.res = this.client.tryTake(template1);

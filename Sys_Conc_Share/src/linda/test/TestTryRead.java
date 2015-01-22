@@ -22,7 +22,7 @@ public class TestTryRead {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.linda = new linda.shm.CentralizedLinda5();
+		this.linda = new linda.shm.CentralizedLindaMultiThread();
 		
 		this.template1 = new Tuple(Integer.class,String.class,"Basil le serpent");
 		this.template2 = new Tuple(Integer.class,String.class);
@@ -69,7 +69,7 @@ public class TestTryRead {
 	}
 	
 	@Test
-	public void test4(){
+	public void testPerformmance(){
 		remplissage(10000);
 		this.linda.write(new Tuple(42,"Mickey"));
 		Tuple res = this.linda.take(new Tuple(42,"Mickey"));

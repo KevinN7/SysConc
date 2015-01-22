@@ -13,7 +13,7 @@ import java.util.Collection;
 import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
 import linda.Tuple;
-import linda.shm.CentralizedLinda;
+import linda.shm.CentralizedLindaTemp1;
 
 public class LindaServer extends UnicastRemoteObject implements LindaS {
 
@@ -22,13 +22,13 @@ public class LindaServer extends UnicastRemoteObject implements LindaS {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	CentralizedLinda linda;
+	CentralizedLindaTemp1 linda;
 	Registry registry;
 	String uri;
 
 
 	public LindaServer(String nuri, int port) throws RemoteException {
-		linda = new CentralizedLinda();
+		linda = new CentralizedLindaTemp1();
 		uri = nuri;
 		try {
 			Naming.rebind(uri, this);

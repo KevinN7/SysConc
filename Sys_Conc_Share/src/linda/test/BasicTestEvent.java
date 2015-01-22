@@ -19,7 +19,7 @@ public class BasicTestEvent {
 			final Long start;
 			
 			
-			linda = new linda.shm.CentralizedLinda2();
+			linda = new linda.shm.CentralizedLinda();
 
 			template1 = new Tuple(Integer.class, String.class,
 					"Basil le serpent");
