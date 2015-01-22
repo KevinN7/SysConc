@@ -3,9 +3,11 @@ package linda.test;
 import java.rmi.Naming;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 
 import linda.Linda;
 import linda.Tuple;
+import linda.server.LindaClient;
 import linda.server.LindaServer;
 
 public class BasicTestServeur1 {
@@ -13,9 +15,12 @@ public class BasicTestServeur1 {
 
 	public static void main(String[] a) throws RemoteException {
 		
-
-		final LindaServer linda = new LindaServer("//localhost:8080/linda", 8080);
-		// final Linda linda = new linda.server.LindaClient("//localhost:4000/aaa");
+		try{
+			LocateRegistry.createRegistry(4000);
+		}catch(Exception e) {}
+		
+		final LindaServer lindas = new LindaServer("//localhost:4000/linda", 4000);
+		final LindaClient linda = new LindaClient("//localhost:4000/linda");
 
 		//Prend le tuple (Integer,String)
 		new Thread() {
