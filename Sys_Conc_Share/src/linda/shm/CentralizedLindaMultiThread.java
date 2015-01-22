@@ -269,13 +269,6 @@ public class CentralizedLindaMultiThread implements Linda {
 		return res;
 	}
 	
-	/*
-	 Tuple motif;
-	motif = new Tuple(Integer.class, String.class);
-	Callback cb = new AsynchronousCallback(new MyCallback());
-	linda.eventRegister(...,...,motif, cb);
-	 */
-	
 	
 	@Override
 	public void eventRegister(eventMode mode, eventTiming timing,
@@ -307,15 +300,7 @@ public class CentralizedLindaMultiThread implements Linda {
 				this.gestionnaireEvent.setTake(template, callback);
 			}
 		}
-		
-		
-		/*Thread.currentThread().getId();
-		
-		//Traitement immediate au cas ou
-		if(timing.equals(eventTiming.IMMEDIATE)) {
-			
-		}*/
-		
+	
 	}
 
 	@Override
