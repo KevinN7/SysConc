@@ -244,6 +244,8 @@ public class Linda4Server extends UnicastRemoteObject implements Linda4S {
     	return res;
     }
 
+    
+    //Regarde uniquement en local
     public Tuple tryReadServer(Tuple template){
     	Tuple res = null;
     	res= this.linda.tryRead(template);
